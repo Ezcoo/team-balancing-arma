@@ -2,11 +2,11 @@
 
 ## What is this project about?
 
-This extension is an "intelligent" (self-learning) and fully autonomous team balancing system that improves its estimates of players' skills constantly and autonomously. It needs to be combined with a properly set up MySQL database.
+This extension is an "intelligent" (self-learning) and fully autonomous team balancing system that improves its estimates of the skill levels of players constantly and autonomously. It needs to be combined with a properly set up MySQL database and SQF code calling it.
 
-The self-learning and autonomous skill measure system parameters can be adjusted, but the default values (data from the last ~17 hours (1000 minutes)) should be the sweet spot between accuracy and prevention of "estimation lag". (It's a common issue in e.g. measuring human performance: if you use measures from too long period of time, you don't have an accurate measurement of the _current_ performance and if you use too real-time data, the result becomes statistically (too) unreliable). It's up to you to determine the balance between accurate enough measurement and tolerable level of statistical reliability in your project.
+- The self-learning and autonomous skill measure system parameters can be adjusted, but the default values (data from the last ~17 hours (1000 minutes)) should be the sweet spot between accuracy and prevention of "estimation lag". (It's a common issue in e.g. measuring human performance: if you use measures from too long period of time, you don't have an accurate measurement of the _current_ performance and if you use too real-time data, the result becomes statistically (too) unreliable). It's up to you to determine the balance between accurate enough measurement and tolerable level of statistical reliability in your project.
 
-It's worth noting that after getting the parameters right, this system worked amazingly well in the original project where it was used. (See IMPORTANT section below).
+- It's worth noting that after getting the parameters right, this system worked amazingly well in the original project where it was used. (See IMPORTANT section below).
 
 ## Database data
 
