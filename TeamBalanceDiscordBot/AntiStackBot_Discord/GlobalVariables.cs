@@ -12,9 +12,9 @@ namespace A2WASPDiscordBot_Windows_App
 {
     public class GlobalVariables
     {
-        public const ulong GuildID = 1117736812270600332;
+        public const ulong GuildID = 00000000000000000;
 
-        public static readonly string dbConnectionString = @"server=localhost;uid=timppa;pwd=5ohG6vDWHM7mZvtAcV64aVAG9;database=antistack";
+        public static readonly string dbConnectionString = @"server=localhost;uid=YOURUSERHERE;pwd=YOURPASSWORDHERE;database=YOURDBHERE";
         private static readonly String dbConnectionStringFinal = Environment.ExpandEnvironmentVariables(dbConnectionString);
 
         public static readonly string logsFolder = @"\Logs\";
