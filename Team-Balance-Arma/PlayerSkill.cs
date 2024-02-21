@@ -169,8 +169,8 @@ namespace TeamBalanceArma
 
             if (scoreDiff > 2000)
             {
-                Log.Write("Player with GUID: " + guid + ", scoreDiff is HUGE: (" + scoreDiff + " )! Player is cheating extremely likely. The results were NOT saved to database. This is a severe alert!", LogLevel.IMPORTANT);
-                return false;
+                Log.Write("Player with GUID: " + guid + ", scoreDiff is HUGE: (" + scoreDiff + " )! Player is cheating extremely likely. The results were still saved to database. This is a severe alert!", LogLevel.IMPORTANT);
+                return true;
             }
 
             return true;

@@ -1,0 +1,10 @@
+
+packages/
+
+Team-Balance-Arma/bin/
+
+Team-Balance-Arma/obj/Release/
+
+Team-Balance-Arma/obj/x86/
+
+.vs/
