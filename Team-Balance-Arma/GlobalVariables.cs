@@ -4,18 +4,11 @@ namespace TeamBalanceArma
 {
     public static class GlobalVariables
     {
-        // To-do
-        /*
-        private static readonly string dbFolder = @"";
-        public static readonly string dbFolder = Environment.ExpandEnvironmentVariables(dbFolderUserProfile);
-        */
+        static string uidEnvVariable = Environment.GetEnvironmentVariable("databaseUid");
+        static string passwordEnvVariable = Environment.GetEnvironmentVariable("databasePassword");
+        static string databaseEnvVariable = Environment.GetEnvironmentVariable("databaseName");
 
-        // ******************************************************************************************************
-        // ATTENTION! DON'T USE IN PRODUCTION YET, password needs to be moved to more secure environment variable
-        // ******************************************************************************************************
-        // // Also the database name itself could be an env var just as a bit of extra security measure
-        // See also important notes in the comments below - to avoid confusion, it would be a good idea to use username other than root
-        public static readonly string DbLocationAndDetails = @"server=localhost;uid=root;pwd=YOURPASSWORDHERE;database=YOURDBNAMEHERE";
+        public static readonly string DbLocationAndDetails = @"server=localhost;uid=" + uidEnvVariable + ";pwd=" + passwordEnvVariable +";database=" + databaseEnvVariable;
 
         public static readonly string LogsFolder = @"@Database\Logs\";
 
@@ -23,7 +16,6 @@ namespace TeamBalanceArma
         public static readonly long SideEast = 2;
 
         public static readonly Random Random = new Random();
-
 
         // Procedures to create in the MySQL database application (or command line)
         // We don't let Arma to call procedures directly since it would be a severe security risk (SQL injection!)
@@ -49,7 +41,5 @@ namespace TeamBalanceArma
         private static readonly string setMap = @"CREATE PROCEDURE set_map() (IN currentMap VARCHAR(60)) INSERT INTO map(map) VALUES (currentMap)";
         private static readonly string getMap = @"CREATE PROCEDURE get_map() (OUT currentMapOut VARCHAR(60)) SELECT * FROM map WHERE map IS NOT NULL LIMIT 1 INTO currentMapOut";
         */
-
     }
-
 }
