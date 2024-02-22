@@ -342,7 +342,7 @@ namespace TeamBalanceArma
 
                     foreach (Player player in activePlayersOnSide)
                     {
-                        sideTotalSkill += (double)player.GetTotalScore() / player.GetTotalTicks();
+                        sideTotalSkill += (double)player.GetSkillAsDouble();
                     }
 
                     sideTotalSkill = Math.Round(sideTotalSkill, 1);
