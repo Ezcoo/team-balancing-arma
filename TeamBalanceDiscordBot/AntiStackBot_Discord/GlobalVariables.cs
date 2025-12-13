@@ -12,19 +12,41 @@ namespace A2WASPDiscordBot_Windows_App
 {
     public class GlobalVariables
     {
-        public const ulong GuildID = 00000000000000000;
 
-        public static readonly string dbConnectionString = @"server=localhost;uid=YOURUSERHERE;pwd=YOURPASSWORDHERE;database=YOURDBHERE";
-        private static readonly String dbConnectionStringFinal = Environment.ExpandEnvironmentVariables(dbConnectionString);
+        static string GuildID = Environment.GetEnvironmentVariable("armaDiscordBotGuildID");
+        static string uidEnvVariable = Environment.GetEnvironmentVariable("databaseUid");
+        static string passwordEnvVariable = Environment.GetEnvironmentVariable("databasePassword");
+        static string databaseEnvVariable = Environment.GetEnvironmentVariable("databaseName");
+        static string GuildChannel = Environment.GetEnvironmentVariable("guildChannel");
+        static string BotToken = Environment.GetEnvironmentVariable("discordBotToken");
+
+        public static readonly string dbConnectionString = @"server=localhost;uid=" + uidEnvVariable + ";pwd=" + passwordEnvVariable + ";database=" + databaseEnvVariable;
 
         public static readonly string logsFolder = @"\Logs\";
 
         public static DiscordSocketConfig discordSocketconfig = new DiscordSocketConfig()
         {
-            GatewayIntents = GatewayIntents.AllUnprivileged,
+            GatewayIntents = GatewayIntents.Guilds | GatewayIntents.GuildMessages
         };
 
         public static readonly DiscordSocketClient client = new DiscordSocketClient(discordSocketconfig);
+
+        public static string GuildID1 { get => GuildID; }
+        public static string GuildChannel1 { get => GuildChannel; }
+        public static string BotToken1 { get => BotToken; }
+
+        public static ulong ConvertIDtoULong(string ulongString)
+        {
+            if (ulong.TryParse(ulongString, out ulong value))
+            {
+                return value;
+            }
+            else
+            {
+                return 0;
+            }
+
+        }
 
         /*
         Related procedures:

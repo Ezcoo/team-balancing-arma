@@ -1,6 +1,7 @@
 ﻿using AntiStackBot_Discord;
 using Discord;
 using Discord.WebSocket;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -30,7 +31,7 @@ namespace A2WASPDiscordBot_Windows_App
             //  This is, however, insecure, particularly if you plan to have your code hosted in a public repository.
 
             // Some alternative options would be to keep your token in an Environment Variable or a standalone file.
-            var token = "ADD_YOUR_TOKEN_HERE";
+            string token = GlobalVariables.BotToken1;
 
             await _client.LoginAsync(TokenType.Bot, token);
             await _client.StartAsync();
@@ -39,26 +40,96 @@ namespace A2WASPDiscordBot_Windows_App
 
             Log.Write("Initializing the bot...", LogLevel.INFO);
 
-            _client.Ready += () =>
-            {
-                Log.Write("Bot is connected!", LogLevel.IMPORTANT);
-                return Task.CompletedTask;
-            };
-
-            Log.Write("INIT DONE", LogLevel.INFO);
-
-            _client.Connected += MessageCreate;
+            _client.Ready += OnReadyAsync;
 
             // Block this task until the program is closed.
             await Task.Delay(-1);
         }
 
+        private static Task OnReadyAsync()
+        {
+            Log.Write("Bot is ready!", LogLevel.IMPORTANT);
+
+            // Run the long loop in the background so the gateway thread is never blocked.
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await RunStatusLoopAsync();
+                }
+                catch (Exception ex)
+                {
+                    Log.Write("Status loop crashed: " + ex, LogLevel.ERROR);
+                }
+            });
+
+            return Task.CompletedTask;
+        }
+
+        private static async Task RunStatusLoopAsync()
+        {
+            await Task.Delay(5100); // small initial delay, optional
+
+            ulong channelId = GlobalVariables.ConvertIDtoULong(GlobalVariables.GuildChannel1);
+            Log.Write($"Looking up channel id: {channelId}", LogLevel.INFO);
+
+            var ch = _client.GetChannel(channelId);
+            Log.Write($"GetChannel result: {(ch == null ? "null" : ch.GetType().FullName)}", LogLevel.INFO);
+
+            Log.Write($"GlobalVariables.ConvertIDtoULong(GlobalVariables.GuildChannel1)) = " + GlobalVariables.ConvertIDtoULong(GlobalVariables.GuildChannel1), LogLevel.ERROR);
+
+
+            var channel = _client.GetChannel(GlobalVariables.ConvertIDtoULong(GlobalVariables.GuildChannel1)) as IMessageChannel;
+            if (channel == null)
+            {
+                Log.Write("Channel not found / not IMessageChannel (check GuildChannel1 id).", LogLevel.ERROR);
+                return;
+            }
+
+            while (true)
+            {
+                try
+                {
+                    _embedBuilder
+                        .WithFooter(footer => footer.Text = "Thank you for balancing the teams! Good luck – and have fun! :) \n\nThis status was updated: ")
+                        .WithTitle("TEAM SKILL BALANCE")
+                        .WithDescription(GetMessage())
+                        .WithCurrentTimestamp();
+
+                    // Send once, then edit thereafter (optional). Easiest: just send new message each time.
+                    // Better: keep a reference and edit it. Here’s the "send once then edit" approach:
+
+                    var msg = await channel.SendMessageAsync(" ", embed: _embedBuilder.Build());
+
+                    // update loop
+                    while (true)
+                    {
+                        await Task.Delay(5100); // non-blocking
+
+                        _embedBuilder
+                            .WithFooter(footer => footer.Text = "Thank you for balancing the teams! Good luck – and have fun! :) \n\nThis status was updated: ")
+                            .WithTitle("TEAM SKILL BALANCE")
+                            .WithDescription(GetMessage())
+                            .WithCurrentTimestamp();
+
+                        await msg.ModifyAsync(m => m.Embed = _embedBuilder.Build());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Write("Update failed: " + ex, LogLevel.ERROR);
+                    await Task.Delay(5000); // backoff before retry
+                }
+            }
+        }
+
+
         private static async Task MessageCreate()
         {
             Thread.Sleep(5100);
-            
+
             // Add your channel here
-            IMessageChannel channel = _client.GetChannel(0000000000000) as IMessageChannel;
+            IMessageChannel channel = _client.GetChannel(GlobalVariables.ConvertIDtoULong(GlobalVariables.GuildChannel1)) as IMessageChannel;
             string messageString = " ";
 
             _embedBuilder

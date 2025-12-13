@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
-using RGiesecke.DllExport;
 
 namespace TeamBalanceArma
 {
     public class Dispatch
     {
         // Necessary stuff for Arma 2 to work
-        [DllExport("_RVExtension@12", CallingConvention = CallingConvention.Winapi)]
+        [A2WASPDatabase.DllExport("_RVExtension@12", CallingConvention = CallingConvention.StdCall)]
 
         // ****************************************************************************
         // This is the entry point of the DLL from Arma 2, some necessary code included
