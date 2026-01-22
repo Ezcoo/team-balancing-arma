@@ -26,7 +26,7 @@ namespace TeamBalanceArma
             this._maxNumberOfScores = 500;
             this._ticksThresholdForCountingSkill = 40;
             this._defaultNumberOfTicks = 10;
-            this._defaultScore = 40;
+            this._defaultScore = 120;
             this.Side = Side.NONE;
             ExistsInDatabase(this.Id);
         }
