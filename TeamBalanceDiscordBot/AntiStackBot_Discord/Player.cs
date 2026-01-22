@@ -25,7 +25,7 @@ namespace A2WASPDiscordBot_Windows_App
             this.maxNumberOfScores = 500;
             this.ticksThresholdForCountingSkill = 40;
             this.defaultNumberOfTicks = 10;
-            this.defaultScore = 80;
+            this.defaultScore = 120;
             this.side = Side.NONE;
             this.currentTicksCached = this.defaultNumberOfTicks;
             existsInDatabase(this.id);
