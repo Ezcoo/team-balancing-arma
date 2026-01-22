@@ -187,23 +187,59 @@ namespace A2WASPDiscordBot_Windows_App
         {
             if (side == Side.WEST)
             {
-                return Emote.Parse("<:blufor_icon:1117862229530902588>");
+                return Emote.Parse("<:blufor_icon:1079145826280034344>");
             }
             else
             {
-                return Emote.Parse("<:opfor_icon:1117862208911708211>");
+                return Emote.Parse("<:opfor_icon:1079145850418233364>");
             }
         }
 
         public static double GetSideTotalSkill(Side side)
         {
             double sideTotalSkill = 0;
+            // TODO: Move to environment variable
+            double playerNumberDifferenceModifier = 0.15;
 
             List<Player> activePlayersOnSide = GetPlayersOnSide(side);
 
             foreach (Player player in activePlayersOnSide)
             {
                 sideTotalSkill += (double)player.GetTotalScore() / player.GetTotalTicks();
+            }
+
+            int playerCountOnBLUFOR = GetPlayerCountOnSide(Side.WEST);
+            int playerCountOnOPFOR = GetPlayerCountOnSide(Side.EAST);
+
+            int playerNumberDifferenceBLUFOR = playerCountOnBLUFOR - playerCountOnOPFOR;
+            int playerNumberDifferenceOPFOR = playerCountOnOPFOR - playerCountOnBLUFOR;
+
+            double differenceCoefficient = 0;
+
+            if (playerNumberDifferenceBLUFOR > 0 && (playerCountOnBLUFOR + playerCountOnOPFOR < 8))
+            {
+                differenceCoefficient = playerNumberDifferenceBLUFOR * playerNumberDifferenceModifier * 2;
+                sideTotalSkill = sideTotalSkill * (1 + differenceCoefficient);
+            }
+            else if (playerNumberDifferenceBLUFOR < 0 && (playerCountOnBLUFOR + playerCountOnOPFOR) < 12)
+            {
+                differenceCoefficient = playerNumberDifferenceBLUFOR * playerNumberDifferenceModifier;
+            } else
+            {
+                differenceCoefficient = 0;
+            }
+
+            if (playerNumberDifferenceOPFOR > 0 && (playerCountOnBLUFOR + playerCountOnOPFOR) < 8)
+            {
+                differenceCoefficient += playerNumberDifferenceOPFOR * playerNumberDifferenceModifier * 2;
+                sideTotalSkill = sideTotalSkill * (1 + differenceCoefficient);
+            } else if (playerNumberDifferenceOPFOR > 0 && (playerCountOnBLUFOR + playerCountOnOPFOR) < 12)
+            {
+                differenceCoefficient = playerNumberDifferenceOPFOR * playerNumberDifferenceModifier;
+                sideTotalSkill = sideTotalSkill * (1 + differenceCoefficient);
+            } else
+            {
+                differenceCoefficient = 0;
             }
 
             sideTotalSkill = Math.Round(sideTotalSkill, 1);
