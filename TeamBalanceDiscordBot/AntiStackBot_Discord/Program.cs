@@ -91,7 +91,7 @@ namespace A2WASPDiscordBot_Windows_App
                 try
                 {
                     _embedBuilder
-                        .WithFooter(footer => footer.Text = "Thank you for balancing the teams! Good luck – and have fun! :) \n\nThis status was updated: ")
+                        .WithFooter(footer => footer.Text = "Thank you for balancing the teams! Good luck – and have fun! :) \n\n")
                         .WithTitle("TEAM SKILL BALANCE")
                         .WithDescription(GetMessage())
                         .WithCurrentTimestamp();
@@ -107,7 +107,7 @@ namespace A2WASPDiscordBot_Windows_App
                         await Task.Delay(5100); // non-blocking
 
                         _embedBuilder
-                            .WithFooter(footer => footer.Text = "Thank you for balancing the teams! Good luck – and have fun! :) \n\nThis status was updated: ")
+                            .WithFooter(footer => footer.Text = "Thank you for balancing the teams! Good luck – and have fun! :) \n\n")
                             .WithTitle("TEAM SKILL BALANCE")
                             .WithDescription(GetMessage())
                             .WithCurrentTimestamp();
@@ -151,17 +151,17 @@ namespace A2WASPDiscordBot_Windows_App
 
         private static async Task MessageUpdate(IUserMessage originalMessage)
         {
-            Thread.Sleep(5100);
+            Thread.Sleep(6100);
 
             if (originalMessage.Author.Id == _client.CurrentUser.Id)
             {
                 await originalMessage.RemoveAllReactionsAsync();
 
                 _embedBuilder
-                    .WithFooter(footer => footer.Text = "Thank you for balancing the teams! Good luck – and have fun! :) \n\nThis status was updated: ")
+                    .WithFooter(footer => footer.Text = "Thank you for balancing the teams! Good luck – and have fun! :) \n\n")
                     .WithTitle("TEAM SKILL BALANCE")
-                    .WithDescription(GetMessage())
-                    .WithCurrentTimestamp();
+                    .WithDescription(GetMessage());
+                    //.WithTimestamp();
 
                 await originalMessage.ModifyAsync(message =>
                 {
@@ -185,7 +185,7 @@ namespace A2WASPDiscordBot_Windows_App
 
             if (Match.GetMap() == "None")
             {
-                message = "\n**Match is currently restarting!**";
+                message = "\n**A new match is currently starting!**";
             } 
             else
             {
@@ -211,8 +211,12 @@ namespace A2WASPDiscordBot_Windows_App
                     message += PlayerList.GetSideEmote(PlayerList.GetSideWherePlayerShouldJoin()) + " **" + PlayerList.GetSideWherePlayersShouldJoinString() + "**";
                 }
 
-                message += "\n-------------\n\n"; 
-                
+                message += "\n-------------\n";
+
+                // message += "Total skill (BLUFOR): **" + skillWest + "** \nTotal skill (OPFOR):  **" + skillEast + "**";
+
+                // message += "\n-------------\n\n";
+
                 // If player count is low,
                 // warn players about possibly quickly changing side value
                 if ((playersCountWest + playersCountEast) < 8)
@@ -229,19 +233,37 @@ namespace A2WASPDiscordBot_Windows_App
                         ((skillEast * percentageLowerLimit) > skillWest) ||
                         ((skillEast * percentageUpperLimit) < skillWest))
                     {
-                        message += "** -- NOTE -- ** \nThe skill difference between teams is very small at this moment.\nBecause of that, the team that you should join might change quickly.";
+                        // message += "** -- NOTE -- ** \nThe skill difference between teams is very small at this moment.\nBecause of that, the team that you should join might change quickly.";
                     }
                 }
 
-                message += 
+                long currentTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                string relativeTime = $"<t:{currentTime}:R>";
+
+                message +=
                     "\n\nPlayers ingame: "
                     + "**"
                     + (PlayerList.GetPlayerCountOnSide(Side.WEST) + PlayerList.GetPlayerCountOnSide(Side.EAST))
+                    + "**";
+
+                string currentMap = Match.GetMap();
+
+                if (currentMap == "Chernarus")
+                {
+                    message += "\n\nCurrent map: "
                     + "**"
-                    + "\n\nCurrent map: "
-                    + "**"
-                    + Match.GetMap()
-                    + "**"
+                    + currentMap + " :park:"
+                    + "**";
+                }
+                else if (currentMap == "Takistan")
+                {
+                    message += "\n\nCurrent map: "
+                   + "**"
+                   + currentMap + " :desert:"
+                   + "**";
+                }
+                message += "\n\n"
+                    + "This status was updated: " + relativeTime
                     + "\n";
             }
 
