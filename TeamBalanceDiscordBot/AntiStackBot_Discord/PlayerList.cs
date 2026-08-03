@@ -183,6 +183,11 @@ namespace A2WASPDiscordBot_Windows_App
             return playerCountOnSide;
         }
 
+        public static int GetTotalPlayerCount()
+        {
+            return GetPlayerCountOnSide(Side.WEST) + GetPlayerCountOnSide(Side.EAST);
+        }
+
         public static Emote GetSideEmote(Side side)
         {
             if (side == Side.WEST)

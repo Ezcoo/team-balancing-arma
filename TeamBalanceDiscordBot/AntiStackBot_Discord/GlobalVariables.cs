@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using Discord.Rest;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Diagnostics;
@@ -19,8 +20,12 @@ namespace A2WASPDiscordBot_Windows_App
         static string databaseEnvVariable = Environment.GetEnvironmentVariable("databaseName");
         static string GuildChannel = Environment.GetEnvironmentVariable("guildChannel");
         static string BotToken = Environment.GetEnvironmentVariable("discordBotToken");
+        static string NotifyRoleThresholdsRaw = Environment.GetEnvironmentVariable("notifyRoleThresholds");
 
         public static readonly string dbConnectionString = @"server=localhost;uid=" + uidEnvVariable + ";pwd=" + passwordEnvVariable + ";database=" + databaseEnvVariable;
+
+        // Format: "threshold:roleId,threshold:roleId,..." e.g. "5:111...,10:222...,15:333...,20:444..."
+        public static readonly Dictionary<int, ulong> NotifyRoleThresholds = ParseNotifyRoleThresholds(NotifyRoleThresholdsRaw);
 
         public static readonly string logsFolder = @"\Logs\";
 
@@ -46,6 +51,27 @@ namespace A2WASPDiscordBot_Windows_App
                 return 0;
             }
 
+        }
+
+        private static Dictionary<int, ulong> ParseNotifyRoleThresholds(string raw)
+        {
+            var result = new Dictionary<int, ulong>();
+
+            if (string.IsNullOrWhiteSpace(raw))
+            {
+                return result;
+            }
+
+            foreach (var pair in raw.Split(',', StringSplitOptions.RemoveEmptyEntries))
+            {
+                var parts = pair.Split(':');
+                if (parts.Length == 2 && int.TryParse(parts[0], out int threshold) && ulong.TryParse(parts[1], out ulong roleId))
+                {
+                    result[threshold] = roleId;
+                }
+            }
+
+            return result;
         }
 
         /*

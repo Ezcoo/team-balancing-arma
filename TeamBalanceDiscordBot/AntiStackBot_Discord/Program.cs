@@ -40,6 +40,8 @@ namespace A2WASPDiscordBot_Windows_App
 
             // _client.MessageUpdated += MessageUpdated;
 
+            _client.ButtonExecuted += RoleButtonMenu.HandleButtonInteractionAsync;
+
             Log.Write("Initializing the bot...", LogLevel.INFO);
 
             _client.Ready += OnReadyAsync;
@@ -85,6 +87,8 @@ namespace A2WASPDiscordBot_Windows_App
                 return;
             }
 
+            await RoleButtonMenu.EnsureButtonMessageAsync(channel);
+
             // Create (only if needed) OR reuse the latest bot-authored message in that channel.
             IUserMessage statusMessage = null;
 
@@ -105,6 +109,9 @@ namespace A2WASPDiscordBot_Windows_App
                         .WithCurrentTimestamp();
 
                     await statusMessage.ModifyAsync(m => m.Embed = _embedBuilder.Build());
+
+                    int totalPlayers = PlayerList.GetTotalPlayerCount();
+                    await ThresholdNotifier.CheckAndNotifyAsync(channel, totalPlayers);
 
                     await Task.Delay(UpdateIntervalMs);
                 }
