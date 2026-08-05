@@ -21,6 +21,7 @@ namespace A2WASPDiscordBot_Windows_App
         static string GuildChannel = Environment.GetEnvironmentVariable("guildChannel");
         static string BotToken = Environment.GetEnvironmentVariable("discordBotToken");
         static string NotifyRoleThresholdsRaw = Environment.GetEnvironmentVariable("notifyRoleThresholds");
+        static string NotifyChannel = Environment.GetEnvironmentVariable("notifyChannel");
 
         public static readonly string dbConnectionString = @"server=localhost;uid=" + uidEnvVariable + ";pwd=" + passwordEnvVariable + ";database=" + databaseEnvVariable;
 
@@ -39,6 +40,7 @@ namespace A2WASPDiscordBot_Windows_App
         public static string GuildID1 { get => GuildID; }
         public static string GuildChannel1 { get => GuildChannel; }
         public static string BotToken1 { get => BotToken; }
+        public static string NotifyChannel1 { get => NotifyChannel; }
 
         public static ulong ConvertIDtoULong(string ulongString)
         {

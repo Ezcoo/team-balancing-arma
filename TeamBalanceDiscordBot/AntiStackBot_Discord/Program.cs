@@ -89,6 +89,21 @@ namespace A2WASPDiscordBot_Windows_App
 
             await RoleButtonMenu.EnsureButtonMessageAsync(channel);
 
+            ulong notifyChannelId = GlobalVariables.ConvertIDtoULong(GlobalVariables.NotifyChannel1);
+            IMessageChannel notifyChannel = channel;
+            if (notifyChannelId != 0)
+            {
+                var resolvedNotifyChannel = _client.GetChannel(notifyChannelId) as IMessageChannel;
+                if (resolvedNotifyChannel != null)
+                {
+                    notifyChannel = resolvedNotifyChannel;
+                }
+                else
+                {
+                    Log.Write("notifyChannel not found / not IMessageChannel; falling back to the status channel for pings.", LogLevel.ERROR);
+                }
+            }
+
             // Create (only if needed) OR reuse the latest bot-authored message in that channel.
             IUserMessage statusMessage = null;
 
@@ -111,7 +126,7 @@ namespace A2WASPDiscordBot_Windows_App
                     await statusMessage.ModifyAsync(m => m.Embed = _embedBuilder.Build());
 
                     int totalPlayers = PlayerList.GetTotalPlayerCount();
-                    await ThresholdNotifier.CheckAndNotifyAsync(channel, totalPlayers);
+                    await ThresholdNotifier.CheckAndNotifyAsync(notifyChannel, totalPlayers);
 
                     await Task.Delay(UpdateIntervalMs);
                 }
