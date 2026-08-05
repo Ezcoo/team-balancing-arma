@@ -43,7 +43,7 @@ namespace A2WASPDiscordBot_Windows_App
             var components = new ComponentBuilder();
             foreach (var threshold in GlobalVariables.NotifyRoleThresholds.Keys.OrderBy(t => t))
             {
-                components.WithButton($"{threshold}+", $"{CustomIdPrefix}{threshold}", ButtonStyle.Secondary);
+                components.WithButton($"{threshold}+", $"{CustomIdPrefix}{threshold}", ButtonStyle.Success);
             }
 
             await channel.SendMessageAsync(
