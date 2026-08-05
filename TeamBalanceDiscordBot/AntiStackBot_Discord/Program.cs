@@ -87,8 +87,6 @@ namespace A2WASPDiscordBot_Windows_App
                 return;
             }
 
-            await RoleButtonMenu.EnsureButtonMessageAsync(channel);
-
             ulong notifyChannelId = GlobalVariables.ConvertIDtoULong(GlobalVariables.NotifyChannel1);
             IMessageChannel notifyChannel = channel;
             if (notifyChannelId != 0)
@@ -104,8 +102,12 @@ namespace A2WASPDiscordBot_Windows_App
                 }
             }
 
-            // Create (only if needed) OR reuse the latest bot-authored message in that channel.
-            IUserMessage statusMessage = null;
+            // Create (only if needed) OR reuse the latest bot-authored status embed in that channel.
+            // Resolved before the button menu so that, on a fresh channel, the button menu is sent
+            // afterwards and ends up newer/below the embed rather than above it.
+            IUserMessage statusMessage = await GetOrCreateStatusMessageAsync(channel, HistorySearchLimit);
+
+            await RoleButtonMenu.EnsureButtonMessageAsync(channel);
 
             while (true)
             {
@@ -164,10 +166,11 @@ namespace A2WASPDiscordBot_Windows_App
             {
                 var msgs = await channel.GetMessagesAsync(historyLimit).FlattenAsync();
 
-                // Pick the newest message authored by THIS bot in the channel.
+                // Pick the newest message authored by THIS bot in the channel, excluding the
+                // notification button menu (which has components; the status embed never does).
                 var existing = msgs
                     .OfType<IUserMessage>()
-                    .Where(m => m.Author != null && m.Author.Id == _client.CurrentUser.Id)
+                    .Where(m => m.Author != null && m.Author.Id == _client.CurrentUser.Id && !m.Components.Any())
                     .OrderByDescending(m => m.Timestamp)
                     .FirstOrDefault();
 
