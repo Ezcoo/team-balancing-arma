@@ -88,9 +88,9 @@ namespace A2WASPDiscordBot_Windows_App
             }
 
             var components = new ComponentBuilder()
-                .WithButton("🙋 I want to play", JoinButtonId, ButtonStyle.Success)
+                .WithButton("🙋 I want to play!", JoinButtonId, ButtonStyle.Success)
                 .WithButton("⚙️ Settings", SettingsButtonId, ButtonStyle.Secondary)
-                .WithButton("❌ Leave", LeaveButtonId, ButtonStyle.Danger);
+                .WithButton("❌ Remove yourself from waiting list", LeaveButtonId, ButtonStyle.Danger);
 
             await channel.SendMessageAsync(
                 "**🙋 Looking to play?**\nClick **I want to play** to join the interested list using your saved settings (first time, I'll DM you to set them up)." +
