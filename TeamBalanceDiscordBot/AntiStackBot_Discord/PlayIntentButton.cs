@@ -90,12 +90,14 @@ namespace A2WASPDiscordBot_Windows_App
             var components = new ComponentBuilder()
                 .WithButton("🙋 I want to play!", JoinButtonId, ButtonStyle.Success)
                 .WithButton("⚙️ Settings", SettingsButtonId, ButtonStyle.Secondary)
-                .WithButton("❌ Remove yourself from waiting list", LeaveButtonId, ButtonStyle.Danger);
+                .WithButton("❌ I don't want to play anymore (now)", LeaveButtonId, ButtonStyle.Danger);
 
-            await channel.SendMessageAsync(
+            var sent = await channel.SendMessageAsync(
                 "**🙋 Looking to play?**\nClick **I want to play** to join the interested list using your saved settings (first time, I'll DM you to set them up)." +
-                " Use **Settings** anytime to change how many players it takes to notify you and how long you're willing to wait, or **Remove yourself from waiting list** to drop off the list.",
+                " Use **Settings** anytime to change how many players it takes to notify you and how long you're willing to wait, or **I don't want to play anymore (now)** to drop off the list.",
                 components: components.Build());
+
+            PersistedMessageLookup.Save(PersistKey, channel.Id, sent.Id);
 
             Log.Write("Sent new play-intent menu message.", LogLevel.INFO);
         }
@@ -401,8 +403,10 @@ namespace A2WASPDiscordBot_Windows_App
                     if (user != null)
                     {
                         var dmChannel = await user.CreateDMChannelAsync();
-                        await dmChannel.SendMessageAsync(
+                        var sentMessage = await dmChannel.SendMessageAsync(
                             $"🙋 **{currentCount}** people want to play now! **It's time to join the server!**");
+
+                        NotificationMessageCleanup.TrackForDeletion(dmChannel.Id, sentMessage.Id, TimeSpan.FromHours(24));
                     }
                 }
                 catch (Exception ex)
