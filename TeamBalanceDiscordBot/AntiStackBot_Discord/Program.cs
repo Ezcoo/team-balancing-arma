@@ -130,6 +130,8 @@ namespace A2WASPDiscordBot_Windows_App
                     int totalPlayers = PlayerList.GetTotalPlayerCount();
                     await ThresholdNotifier.CheckAndNotifyAsync(notifyChannel, totalPlayers);
 
+                    await NotificationMessageCleanup.SweepAsync();
+
                     await Task.Delay(UpdateIntervalMs);
                 }
                 catch (HttpException httpEx)

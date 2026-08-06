@@ -30,11 +30,13 @@ namespace A2WASPDiscordBot_Windows_App
 
                 try
                 {
-                    await channel.SendMessageAsync(
+                    var sentMessage = await channel.SendMessageAsync(
                         $"<@&{roleId}> Player count has reached **{threshold}+** (currently **{currentPlayerCount}** online)!",
                         allowedMentions: new AllowedMentions { RoleIds = new List<ulong> { roleId } });
 
                     _lastPingUtc[threshold] = DateTime.UtcNow;
+
+                    NotificationMessageCleanup.TrackForDeletion(channel.Id, sentMessage.Id, DateTime.UtcNow);
                 }
                 catch (Exception ex)
                 {

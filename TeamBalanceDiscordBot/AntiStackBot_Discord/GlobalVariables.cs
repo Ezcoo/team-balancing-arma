@@ -29,6 +29,7 @@ namespace A2WASPDiscordBot_Windows_App
         public static readonly Dictionary<int, ulong> NotifyRoleThresholds = ParseNotifyRoleThresholds(NotifyRoleThresholdsRaw);
 
         public static readonly string logsFolder = @"\Logs\";
+        public static readonly string dataFolder = @"\Data\";
 
         public static DiscordSocketConfig discordSocketconfig = new DiscordSocketConfig()
         {
