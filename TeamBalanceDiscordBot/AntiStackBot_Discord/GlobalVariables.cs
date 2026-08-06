@@ -22,15 +22,15 @@ namespace A2WASPDiscordBot_Windows_App
         static string BotToken = Environment.GetEnvironmentVariable("discordBotToken");
         static string NotifyRoleThresholdsRaw = Environment.GetEnvironmentVariable("notifyRoleThresholds");
         static string NotifyChannel = Environment.GetEnvironmentVariable("notifyChannel");
-        static string PlayIntentThresholdsRaw = Environment.GetEnvironmentVariable("playIntentThresholds");
+        static string PlayIntentEnabledRaw = Environment.GetEnvironmentVariable("playIntentEnabled");
 
         public static readonly string dbConnectionString = @"server=localhost;uid=" + uidEnvVariable + ";pwd=" + passwordEnvVariable + ";database=" + databaseEnvVariable;
 
         // Format: "threshold:roleId,threshold:roleId,..." e.g. "5:111...,10:222...,15:333...,20:444..."
         public static readonly Dictionary<int, ulong> NotifyRoleThresholds = ParseNotifyRoleThresholds(NotifyRoleThresholdsRaw);
 
-        // Format: "count,count,..." e.g. "3,6,10" - milestone counts for the "I want to play" gather button.
-        public static readonly List<int> PlayIntentThresholds = ParsePlayIntentThresholds(PlayIntentThresholdsRaw);
+        // Set to "true" or "1" to enable the "I want to play" gather feature.
+        public static readonly bool PlayIntentEnabled = string.Equals(PlayIntentEnabledRaw, "true", StringComparison.OrdinalIgnoreCase) || PlayIntentEnabledRaw == "1";
 
         public static readonly string logsFolder = @"\Logs\";
         public static readonly string dataFolder = @"\Data\";
@@ -78,27 +78,6 @@ namespace A2WASPDiscordBot_Windows_App
                 }
             }
 
-            return result;
-        }
-
-        private static List<int> ParsePlayIntentThresholds(string raw)
-        {
-            var result = new List<int>();
-
-            if (string.IsNullOrWhiteSpace(raw))
-            {
-                return result;
-            }
-
-            foreach (var part in raw.Split(',', StringSplitOptions.RemoveEmptyEntries))
-            {
-                if (int.TryParse(part, out int threshold))
-                {
-                    result.Add(threshold);
-                }
-            }
-
-            result.Sort();
             return result;
         }
 

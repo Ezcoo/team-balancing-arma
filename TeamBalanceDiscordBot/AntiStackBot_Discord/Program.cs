@@ -41,6 +41,7 @@ namespace A2WASPDiscordBot_Windows_App
             // _client.MessageUpdated += MessageUpdated;
 
             _client.ButtonExecuted += RoleButtonMenu.HandleButtonInteractionAsync;
+            _client.ButtonExecuted += PlayIntentButton.HandleButtonInteractionAsync;
             _client.SelectMenuExecuted += PlayIntentButton.HandleSelectMenuInteractionAsync;
 
             Log.Write("Initializing the bot...", LogLevel.INFO);
@@ -109,6 +110,7 @@ namespace A2WASPDiscordBot_Windows_App
             IUserMessage statusMessage = await GetOrCreateStatusMessageAsync(channel, HistorySearchLimit);
 
             await RoleButtonMenu.EnsureButtonMessageAsync(channel);
+            await PlayIntentButton.EnsureMenuMessageAsync(channel);
 
             while (true)
             {

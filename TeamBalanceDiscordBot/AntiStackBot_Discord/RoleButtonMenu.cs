@@ -13,9 +13,9 @@ namespace A2WASPDiscordBot_Windows_App
 
         public static async Task EnsureButtonMessageAsync(IMessageChannel channel)
         {
-            if (GlobalVariables.NotifyRoleThresholds.Count == 0 && !PlayIntentButton.IsConfigured)
+            if (GlobalVariables.NotifyRoleThresholds.Count == 0)
             {
-                Log.Write("No notifyRoleThresholds or playIntentThresholds configured; skipping notification button menu.", LogLevel.INFO);
+                Log.Write("No notifyRoleThresholds configured; skipping notification button menu.", LogLevel.INFO);
                 return;
             }
 
@@ -23,9 +23,13 @@ namespace A2WASPDiscordBot_Windows_App
             {
                 var msgs = await channel.GetMessagesAsync(100).FlattenAsync();
 
+                // Match specifically on our own button id prefix, so this doesn't collide with
+                // the separate play-intent menu message (which also uses buttons now).
                 var existing = msgs
                     .OfType<IUserMessage>()
-                    .Where(m => m.Author != null && m.Author.Id == GlobalVariables.client.CurrentUser.Id && m.Components.Any())
+                    .Where(m => m.Author != null && m.Author.Id == GlobalVariables.client.CurrentUser.Id
+                        && m.Components.OfType<ActionRowComponent>().Any(row => row.Components.OfType<ButtonComponent>()
+                            .Any(b => b.CustomId != null && b.CustomId.StartsWith(CustomIdPrefix))))
                     .OrderByDescending(m => m.Timestamp)
                     .FirstOrDefault();
 
@@ -46,11 +50,8 @@ namespace A2WASPDiscordBot_Windows_App
                 components.WithButton($"{threshold}+", $"{CustomIdPrefix}{threshold}", ButtonStyle.Success);
             }
 
-            PlayIntentButton.AddSelectMenu(components);
-
             await channel.SendMessageAsync(
-                "**🔔 Player Count Notifications**\nClick a button to toggle a role that pings you when the player count reaches that many players." +
-                "\n\n🙋 Or use the **I want to play** dropdown to signal you're up for a game and pick how long you're willing to wait - once enough people have joined in, everyone currently interested gets pinged.",
+                "**🔔 Player Count Notifications**\nClick a button to toggle a role that pings you when the player count reaches that many players.",
                 components: components.Build());
 
             Log.Write("Sent new notification button menu message.", LogLevel.INFO);
