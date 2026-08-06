@@ -41,6 +41,7 @@ namespace A2WASPDiscordBot_Windows_App
             // _client.MessageUpdated += MessageUpdated;
 
             _client.ButtonExecuted += RoleButtonMenu.HandleButtonInteractionAsync;
+            _client.SelectMenuExecuted += PlayIntentButton.HandleSelectMenuInteractionAsync;
 
             Log.Write("Initializing the bot...", LogLevel.INFO);
 
