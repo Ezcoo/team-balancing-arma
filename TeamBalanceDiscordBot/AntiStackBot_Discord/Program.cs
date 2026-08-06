@@ -121,7 +121,7 @@ namespace A2WASPDiscordBot_Windows_App
 
                     _embedBuilder
                         .WithFooter(footer => footer.Text = "Thank you for balancing the teams! Good luck – and have fun! :)")
-                        .WithTitle("TEAM SKILL BALANCE")
+                        .WithTitle("TEAM BALANCE")
                         .WithDescription(GetMessage())
                         .WithCurrentTimestamp();
 
@@ -296,7 +296,7 @@ namespace A2WASPDiscordBot_Windows_App
 
                 // If player count is low,
                 // warn players about possibly quickly changing side value
-                if ((playersCountWest + playersCountEast) < 8)
+                if ((playersCountWest + playersCountEast) > 8)
                 {
                     message += "** -- NOTE -- ** \nBecause of the current player count, the \nteam that you should join might change quickly.";
                 }
