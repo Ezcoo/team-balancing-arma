@@ -167,6 +167,15 @@ namespace A2WASPDiscordBot_Windows_App
         /// </summary>
         private static async Task<IUserMessage> GetOrCreateStatusMessageAsync(IMessageChannel channel, int historyLimit)
         {
+            const string PersistKey = "status";
+
+            var persisted = await PersistedMessageLookup.TryGetAsync(PersistKey, channel);
+            if (persisted != null)
+            {
+                Log.Write($"Reusing persisted status message (id={persisted.Id}).", LogLevel.INFO);
+                return persisted;
+            }
+
             try
             {
                 var msgs = await channel.GetMessagesAsync(historyLimit).FlattenAsync();
@@ -182,6 +191,7 @@ namespace A2WASPDiscordBot_Windows_App
                 if (existing != null)
                 {
                     Log.Write($"Reusing existing bot message (id={existing.Id}) in channel.", LogLevel.INFO);
+                    PersistedMessageLookup.Save(PersistKey, channel.Id, existing.Id);
                     return existing;
                 }
             }
@@ -198,7 +208,9 @@ namespace A2WASPDiscordBot_Windows_App
                 .WithCurrentTimestamp();
 
             Log.Write("No existing bot messages found; sending a new status message.", LogLevel.INFO);
-            return await channel.SendMessageAsync(" ", embed: _embedBuilder.Build());
+            var sent = await channel.SendMessageAsync(" ", embed: _embedBuilder.Build());
+            PersistedMessageLookup.Save(PersistKey, channel.Id, sent.Id);
+            return sent;
         }
 
 

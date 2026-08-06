@@ -7,11 +7,10 @@ using System.Threading.Tasks;
 
 namespace A2WASPDiscordBot_Windows_App
 {
-    // Tracks threshold-ping messages so they can be deleted a fixed time after being sent,
-    // persisted to disk so scheduled deletions survive a bot restart.
+    // Tracks bot-sent messages (channel pings or DMs) so they can be deleted a fixed time
+    // after being sent, persisted to disk so scheduled deletions survive a bot restart.
     public static class NotificationMessageCleanup
     {
-        private static readonly TimeSpan MaxAge = TimeSpan.FromHours(6);
         private static readonly string FilePath = GlobalVariables.dataFolder + "PendingNotificationDeletions.json";
         private static readonly object FileLock = new object();
 
@@ -19,15 +18,15 @@ namespace A2WASPDiscordBot_Windows_App
         {
             public ulong ChannelId { get; set; }
             public ulong MessageId { get; set; }
-            public DateTime SentAtUtc { get; set; }
+            public DateTime ExpiresAtUtc { get; set; }
         }
 
-        public static void TrackForDeletion(ulong channelId, ulong messageId, DateTime sentAtUtc)
+        public static void TrackForDeletion(ulong channelId, ulong messageId, TimeSpan maxAge)
         {
             lock (FileLock)
             {
                 var entries = LoadEntries();
-                entries.Add(new Entry { ChannelId = channelId, MessageId = messageId, SentAtUtc = sentAtUtc });
+                entries.Add(new Entry { ChannelId = channelId, MessageId = messageId, ExpiresAtUtc = DateTime.UtcNow + maxAge });
                 SaveEntries(entries);
             }
         }
@@ -45,15 +44,17 @@ namespace A2WASPDiscordBot_Windows_App
                 return;
             }
 
-            DateTime cutoff = DateTime.UtcNow - MaxAge;
-            var due = entries.FindAll(e => e.SentAtUtc <= cutoff);
-            var remaining = entries.FindAll(e => e.SentAtUtc > cutoff);
+            DateTime now = DateTime.UtcNow;
+            var due = entries.FindAll(e => e.ExpiresAtUtc <= now);
+            var remaining = entries.FindAll(e => e.ExpiresAtUtc > now);
 
             foreach (var entry in due)
             {
                 try
                 {
-                    if (GlobalVariables.client.GetChannel(entry.ChannelId) is IMessageChannel channel)
+                    // Resolved via REST rather than the socket cache, since DM channels aren't
+                    // reliably cached by the gateway after a restart until the user messages again.
+                    if (await GlobalVariables.client.Rest.GetChannelAsync(entry.ChannelId) is IMessageChannel channel)
                     {
                         await channel.DeleteMessageAsync(entry.MessageId);
                     }

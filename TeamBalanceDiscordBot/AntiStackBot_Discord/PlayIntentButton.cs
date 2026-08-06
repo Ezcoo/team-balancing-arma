@@ -54,11 +54,20 @@ namespace A2WASPDiscordBot_Windows_App
 
         public static bool IsConfigured => GlobalVariables.PlayIntentEnabled;
 
+        private const string PersistKey = "play_intent_menu";
+
         public static async Task EnsureMenuMessageAsync(IMessageChannel channel)
         {
             if (!IsConfigured)
             {
                 Log.Write("playIntentEnabled is not set; skipping play-intent menu.", LogLevel.INFO);
+                return;
+            }
+
+            var persisted = await PersistedMessageLookup.TryGetAsync(PersistKey, channel);
+            if (persisted != null)
+            {
+                Log.Write($"Reusing persisted play-intent menu message (id={persisted.Id}).", LogLevel.INFO);
                 return;
             }
 
@@ -79,6 +88,7 @@ namespace A2WASPDiscordBot_Windows_App
                 if (existing != null)
                 {
                     Log.Write($"Reusing existing play-intent menu message (id={existing.Id}).", LogLevel.INFO);
+                    PersistedMessageLookup.Save(PersistKey, channel.Id, existing.Id);
                     return;
                 }
             }

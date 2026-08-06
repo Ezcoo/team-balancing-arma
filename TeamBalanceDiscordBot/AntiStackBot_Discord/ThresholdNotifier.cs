@@ -36,7 +36,7 @@ namespace A2WASPDiscordBot_Windows_App
 
                     _lastPingUtc[threshold] = DateTime.UtcNow;
 
-                    NotificationMessageCleanup.TrackForDeletion(channel.Id, sentMessage.Id, DateTime.UtcNow);
+                    NotificationMessageCleanup.TrackForDeletion(channel.Id, sentMessage.Id, TimeSpan.FromHours(6));
                 }
                 catch (Exception ex)
                 {

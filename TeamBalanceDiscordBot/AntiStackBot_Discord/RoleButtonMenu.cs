@@ -11,11 +11,20 @@ namespace A2WASPDiscordBot_Windows_App
     {
         private const string CustomIdPrefix = "notify_role:";
 
+        private const string PersistKey = "notify_menu";
+
         public static async Task EnsureButtonMessageAsync(IMessageChannel channel)
         {
             if (GlobalVariables.NotifyRoleThresholds.Count == 0)
             {
                 Log.Write("No notifyRoleThresholds configured; skipping notification button menu.", LogLevel.INFO);
+                return;
+            }
+
+            var persisted = await PersistedMessageLookup.TryGetAsync(PersistKey, channel);
+            if (persisted != null)
+            {
+                Log.Write($"Reusing persisted notification button message (id={persisted.Id}).", LogLevel.INFO);
                 return;
             }
 
@@ -36,6 +45,7 @@ namespace A2WASPDiscordBot_Windows_App
                 if (existing != null)
                 {
                     Log.Write($"Reusing existing notification button message (id={existing.Id}).", LogLevel.INFO);
+                    PersistedMessageLookup.Save(PersistKey, channel.Id, existing.Id);
                     return;
                 }
             }
@@ -50,9 +60,11 @@ namespace A2WASPDiscordBot_Windows_App
                 components.WithButton($"{threshold}+", $"{CustomIdPrefix}{threshold}", ButtonStyle.Success);
             }
 
-            await channel.SendMessageAsync(
+            var sent = await channel.SendMessageAsync(
                 "**🔔 Player Count Notifications**\nClick a button to toggle a role that pings you when the player count reaches that many players.",
                 components: components.Build());
+
+            PersistedMessageLookup.Save(PersistKey, channel.Id, sent.Id);
 
             Log.Write("Sent new notification button menu message.", LogLevel.INFO);
         }
