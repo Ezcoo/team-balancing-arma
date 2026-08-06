@@ -94,7 +94,7 @@ namespace A2WASPDiscordBot_Windows_App
 
             await channel.SendMessageAsync(
                 "**🙋 Looking to play?**\nClick **I want to play** to join the interested list using your saved settings (first time, I'll DM you to set them up)." +
-                " Use **Settings** anytime to change how many players it takes to notify you and how long you're willing to wait, or **Leave** to drop off the list.",
+                " Use **Settings** anytime to change how many players it takes to notify you and how long you're willing to wait, or **Remove yourself from waiting list** to drop off the list.",
                 components: components.Build());
 
             Log.Write("Sent new play-intent menu message.", LogLevel.INFO);
@@ -294,6 +294,8 @@ namespace A2WASPDiscordBot_Windows_App
             {
                 var dmChannel = await user.CreateDMChannelAsync();
 
+                await DeletePreviousSettingsMessagesAsync(dmChannel);
+
                 var thresholdMenu = new SelectMenuBuilder()
                     .WithCustomId(ThresholdSelectId)
                     .WithPlaceholder($"Notify me once N people want to play (currently {profile.Threshold})")
@@ -335,6 +337,36 @@ namespace A2WASPDiscordBot_Windows_App
             }
         }
 
+        private static async Task DeletePreviousSettingsMessagesAsync(IDMChannel dmChannel)
+        {
+            try
+            {
+                var msgs = await dmChannel.GetMessagesAsync(50).FlattenAsync();
+
+                var stale = msgs
+                    .OfType<IUserMessage>()
+                    .Where(m => m.Author != null && m.Author.Id == GlobalVariables.client.CurrentUser.Id
+                        && m.Components.OfType<ActionRowComponent>().Any(row => row.Components.OfType<SelectMenuComponent>()
+                            .Any(s => s.CustomId == ThresholdSelectId || s.CustomId == WaitSelectId)));
+
+                foreach (var message in stale)
+                {
+                    try
+                    {
+                        await message.DeleteAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Write($"Failed to delete stale play-intent settings message {message.Id}: " + ex, LogLevel.ERROR);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Write("Failed to read DM history to clean up stale settings messages: " + ex, LogLevel.ERROR);
+            }
+        }
+
         private static IMessageChannel ResolveNotifyChannel(IMessageChannel fallback)
         {
             ulong notifyChannelId = GlobalVariables.ConvertIDtoULong(GlobalVariables.NotifyChannel1);
@@ -370,7 +402,7 @@ namespace A2WASPDiscordBot_Windows_App
                     {
                         var dmChannel = await user.CreateDMChannelAsync();
                         await dmChannel.SendMessageAsync(
-                            $"🙋 **{currentCount}** people want to play now - that's your threshold of **{threshold}**! Hop in if you're still up for it.");
+                            $"🙋 **{currentCount}** people want to play now! **It's time to join the server!**");
                     }
                 }
                 catch (Exception ex)
