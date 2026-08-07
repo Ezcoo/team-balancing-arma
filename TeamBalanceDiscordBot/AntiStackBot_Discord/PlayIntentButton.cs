@@ -110,7 +110,7 @@ namespace A2WASPDiscordBot_Windows_App
 
             var components = new ComponentBuilder()
                 .WithButton("🙋 I want to play!", JoinButtonId, ButtonStyle.Success)
-                .WithButton("⚙️ Settings", SettingsButtonId, ButtonStyle.Secondary)
+                .WithButton("⚙️ Settings", SettingsButtonId, ButtonStyle.Primary)
                 .WithButton("❌ I don't want to play anymore (now)", LeaveButtonId, ButtonStyle.Danger);
 
             var sent = await channel.SendMessageAsync(BuildMenuContent(currentCount), components: components.Build());
