@@ -64,10 +64,20 @@ namespace A2WASPDiscordBot_Windows_App
                 return;
             }
 
+            int currentCount;
+            lock (FileLock)
+            {
+                var state = LoadState();
+                PruneExpired(state);
+                currentCount = state.Interested.Count;
+                SaveState(state);
+            }
+
             var persisted = await PersistedMessageLookup.TryGetAsync(PersistKey, channel);
             if (persisted != null)
             {
                 Log.Write($"Reusing persisted play-intent menu message (id={persisted.Id}).", LogLevel.INFO);
+                await TryUpdateMenuContentAsync(persisted, currentCount);
                 return;
             }
 
@@ -89,6 +99,7 @@ namespace A2WASPDiscordBot_Windows_App
                 {
                     Log.Write($"Reusing existing play-intent menu message (id={existing.Id}).", LogLevel.INFO);
                     PersistedMessageLookup.Save(PersistKey, channel.Id, existing.Id);
+                    await TryUpdateMenuContentAsync(existing, currentCount);
                     return;
                 }
             }
@@ -102,14 +113,31 @@ namespace A2WASPDiscordBot_Windows_App
                 .WithButton("⚙️ Settings", SettingsButtonId, ButtonStyle.Secondary)
                 .WithButton("❌ I don't want to play anymore (now)", LeaveButtonId, ButtonStyle.Danger);
 
-            var sent = await channel.SendMessageAsync(
-                "**🙋 Looking to play?**\nClick **I want to play** to join the interested list using your saved settings (first time, I'll DM you to set them up)." +
-                " Use **Settings** anytime to change how many players it takes to notify you and how long you're willing to wait, or **I don't want to play anymore (now)** to drop off the list.",
-                components: components.Build());
+            var sent = await channel.SendMessageAsync(BuildMenuContent(currentCount), components: components.Build());
 
             PersistedMessageLookup.Save(PersistKey, channel.Id, sent.Id);
 
             Log.Write("Sent new play-intent menu message.", LogLevel.INFO);
+        }
+
+        private static string BuildMenuContent(int currentCount)
+        {
+            return "**🙋 Looking to play?**\n" +
+                $"Current number of players wanting to play: **{currentCount}**\n\n" +
+                "Click **I want to play** to join the interested list using your saved settings (first time, I'll DM you to set them up)." +
+                " Use **Settings** anytime to change how many players it takes to notify you and how long you're willing to wait, or **I don't want to play anymore (now)** to drop off the list.";
+        }
+
+        private static async Task TryUpdateMenuContentAsync(IUserMessage message, int currentCount)
+        {
+            try
+            {
+                await message.ModifyAsync(m => m.Content = BuildMenuContent(currentCount));
+            }
+            catch (Exception ex)
+            {
+                Log.Write($"Failed to refresh play-intent menu message content (id={message.Id}): " + ex, LogLevel.ERROR);
+            }
         }
 
         public static async Task HandleButtonInteractionAsync(SocketMessageComponent component)
@@ -129,17 +157,24 @@ namespace A2WASPDiscordBot_Windows_App
             if (customId == LeaveButtonId)
             {
                 bool wasInterested;
+                int currentCountAfterLeave;
                 lock (FileLock)
                 {
                     var state = LoadState();
                     PruneExpired(state);
                     wasInterested = state.Interested.RemoveAll(e => e.UserId == guildUser.Id) > 0;
+                    currentCountAfterLeave = state.Interested.Count;
                     SaveState(state);
                 }
 
                 await component.RespondAsync(
                     wasInterested ? "You're no longer marked as wanting to play." : "You weren't marked as interested.",
                     ephemeral: true);
+
+                if (wasInterested)
+                {
+                    await TryUpdateMenuContentAsync(component.Message, currentCountAfterLeave);
+                }
                 return;
             }
 
@@ -196,6 +231,8 @@ namespace A2WASPDiscordBot_Windows_App
             await component.RespondAsync(
                 $"🙋 You're in! Waiting for **{joinProfile.Threshold}** interested ({currentCount} so far), up to **{joinProfile.WaitHours}h**.",
                 ephemeral: true);
+
+            await TryUpdateMenuContentAsync(component.Message, currentCount);
 
             if (isFirstTime)
             {
