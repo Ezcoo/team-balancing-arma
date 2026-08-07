@@ -241,8 +241,7 @@ namespace A2WASPDiscordBot_Windows_App
 
             if (newlyNotified.Count > 0)
             {
-                var pingChannel = ResolveNotifyChannel(component.Channel as IMessageChannel);
-                await SendGatherNotificationsAsync(pingChannel, currentCount, newlyNotified);
+                await SendGatherNotificationsAsync(currentCount, newlyNotified);
             }
         }
 
@@ -416,32 +415,8 @@ namespace A2WASPDiscordBot_Windows_App
             }
         }
 
-        private static IMessageChannel ResolveNotifyChannel(IMessageChannel fallback)
+        private static async Task SendGatherNotificationsAsync(int currentCount, List<(ulong UserId, int Threshold)> newlyNotified)
         {
-            ulong notifyChannelId = GlobalVariables.ConvertIDtoULong(GlobalVariables.NotifyChannel1);
-            if (notifyChannelId != 0 && GlobalVariables.client.GetChannel(notifyChannelId) is IMessageChannel resolved)
-            {
-                return resolved;
-            }
-
-            return fallback;
-        }
-
-        private static async Task SendGatherNotificationsAsync(IMessageChannel channel, int currentCount, List<(ulong UserId, int Threshold)> newlyNotified)
-        {
-            try
-            {
-                if (channel != null)
-                {
-                    await channel.SendMessageAsync(
-                        $"🙋 **{currentCount}** people are interested in playing right now! ({newlyNotified.Count} person{(newlyNotified.Count == 1 ? "" : "s")} just got notified.)");
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Write("Failed to send play-intent channel heads-up: " + ex, LogLevel.ERROR);
-            }
-
             foreach (var (userId, threshold) in newlyNotified)
             {
                 try
