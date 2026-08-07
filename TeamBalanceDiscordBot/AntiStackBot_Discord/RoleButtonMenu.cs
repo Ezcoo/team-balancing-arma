@@ -61,7 +61,7 @@ namespace A2WASPDiscordBot_Windows_App
             }
 
             var sent = await channel.SendMessageAsync(
-                "------------------------------------------------------------------------\n**🔔 Player Count Notifications**\n\nClick a button to toggle a role that pings you when the player count reaches that many players.\n",
+                "------------------------------------------------------------------------\n**🔔 Player Count Notifications**\n\nClick a button to toggle a role that pings you when the player count reaches that many players. You can toggle your choice by clicking a button again. (You can also select multiple options!)\n",
                 components: components.Build());
 
             PersistedMessageLookup.Save(PersistKey, channel.Id, sent.Id);
