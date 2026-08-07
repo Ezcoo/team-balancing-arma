@@ -414,11 +414,11 @@ namespace A2WASPDiscordBot_Windows_App
                     {
                         var dmChannel = await user.CreateDMChannelAsync();
                         var sentMessage = await dmChannel.SendMessageAsync(
-                            $"-------------------------------------------------------------------------- \n
-                            🙋 **{currentCount}** people want to play now. **It's time to join the server! :)** \n
-                            --------------------------------------------------------------------------");
+                            $"--------------------------------------------------------------------------- \n" +
+                            $"🙋 **{currentCount}** people want to play now! **It's time to join the server! :)**" +
+                            $"---------------------------------------------------------------------------");
 
-                        NotificationMessageCleanup.TrackForDeletion(dmChannel.Id, sentMessage.Id, TimeSpan.FromHours(6));
+                        NotificationMessageCleanup.TrackForDeletion(dmChannel.Id, sentMessage.Id, TimeSpan.FromHours(24));
                     }
                 }
                 catch (Exception ex)
