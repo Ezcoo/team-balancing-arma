@@ -31,7 +31,7 @@ namespace A2WASPDiscordBot_Windows_App
                 try
                 {
                     var sentMessage = await channel.SendMessageAsync(
-                        $"<@&{roleId}> Player count has reached **{threshold}+** (currently **{currentPlayerCount}** online)!",
+                        $"<@&{roleId}> Player count on Miksuu's Warfare server in Arma 2 has reached the threshold you have set: Currently, there are **{currentPlayerCount}** players ingame! **Welcome to the server! :)**",
                         allowedMentions: new AllowedMentions { RoleIds = new List<ulong> { roleId } });
 
                     _lastPingUtc[threshold] = DateTime.UtcNow;
