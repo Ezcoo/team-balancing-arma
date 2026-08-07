@@ -414,7 +414,9 @@ namespace A2WASPDiscordBot_Windows_App
                     {
                         var dmChannel = await user.CreateDMChannelAsync();
                         var sentMessage = await dmChannel.SendMessageAsync(
-                            $"🙋 **{currentCount}** people want to play now! **It's time to join the server!**");
+                            $"-------------------------------------------------------------------------- \n
+                            🙋 **{currentCount}** people want to play now. **It's time to join the server! :)** \n
+                            --------------------------------------------------------------------------");
 
                         NotificationMessageCleanup.TrackForDeletion(dmChannel.Id, sentMessage.Id, TimeSpan.FromHours(6));
                     }
