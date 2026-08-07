@@ -122,7 +122,7 @@ namespace A2WASPDiscordBot_Windows_App
 
         private static string BuildMenuContent(int currentCount)
         {
-            return "**🙋 Looking to play?**\n\n" +
+            return "------------------------------------------------------------------------\n**🙋 Looking to play?**\n\n" +
                 $"Current number of players wanting to play: **{currentCount}**\n\n" +
                 "Click **I want to play** to join the interested list using your saved settings (first time, I'll DM you to set them up)." +
                 " Use **Settings** anytime to change how many players it takes to notify you and how long you're willing to wait, or **I don't want to play anymore (now)** to drop off the list.";
